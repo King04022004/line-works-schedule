@@ -1,0 +1,26 @@
+runtime: nodejs24
+service: default
+
+automatic_scaling:
+  min_instances: 0
+  max_instances: 5
+
+env_variables:
+  TZ: "Asia/Tokyo"
+  LW_USE_MOCK: "false"
+  DEFAULT_RESULT_LIMIT: "5"
+  MIN_LEAD_MINUTES: "30"
+
+  LW_API_BASE_URL: "https://www.worksapis.com/v1.0"
+  LW_AUTH_TOKEN_URL: "https://auth.worksmobile.com/oauth2/v2.0/token"
+  LW_OAUTH_REDIRECT_URI: "https://REPLACE_WITH_YOUR_HOST/api/v1/auth/callback"
+  LW_OAUTH_SCOPES: "calendar calendar.read directory directory.read"
+
+  LW_CALENDAR_BUSY_PATH_TEMPLATE: "/users/{userId}/calendar/events?fromDateTime={from}&untilDateTime={to}"
+  LW_CALENDAR_CREATE_PATH_TEMPLATE: "/users/{calendarId}/calendar/events"
+
+  # Set secrets outside source control before deploy:
+  # LW_CLIENT_ID
+  # LW_CLIENT_SECRET
+  # LW_SERVICE_ACCOUNT
+  # LW_PRIVATE_KEY

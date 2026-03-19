@@ -1,0 +1,170 @@
+:root {
+  --bg: #f5f8ff;
+  --paper: #ffffff;
+  --ink: #182533;
+  --muted: #546476;
+  --brand: #0f7b6c;
+  --danger: #b33636;
+  --line: #d9e2ef;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Yu Gothic UI", "Hiragino Sans", sans-serif;
+  color: var(--ink);
+  background:
+    radial-gradient(circle at 20% 10%, #d8f4f0 0, transparent 33%),
+    radial-gradient(circle at 90% 0, #dbe8ff 0, transparent 30%),
+    var(--bg);
+}
+
+.app {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 20px 14px 80px;
+}
+
+.hero {
+  margin-bottom: 14px;
+}
+
+.eyebrow {
+  margin: 0;
+  font-weight: 700;
+  color: var(--brand);
+}
+
+h1 {
+  margin: 6px 0 8px;
+  font-size: 1.65rem;
+}
+
+.sub {
+  margin: 0;
+  color: var(--muted);
+}
+
+.card {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 14px;
+  margin-top: 12px;
+  box-shadow: 0 8px 24px rgba(32, 51, 76, 0.06);
+}
+
+h2 {
+  margin-top: 0;
+  font-size: 1.05rem;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 10px;
+  font-size: 0.95rem;
+}
+
+input,
+textarea,
+select,
+button {
+  font: inherit;
+}
+
+input,
+textarea,
+select {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 9px 10px;
+}
+
+button {
+  border: none;
+  border-radius: 999px;
+  padding: 10px 16px;
+  background: var(--brand);
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.inline {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.status {
+  margin: 4px 0 10px;
+  color: var(--muted);
+}
+
+.list {
+  display: grid;
+  gap: 8px;
+}
+
+.slot {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.slot.selected {
+  border-color: var(--brand);
+  background: #effaf8;
+}
+
+#log {
+  margin: 0;
+  max-height: 260px;
+  overflow: auto;
+  background: #0f1a2a;
+  color: #c0d9ff;
+  padding: 10px;
+  border-radius: 10px;
+  font-size: 0.82rem;
+}
+
+.danger {
+  color: var(--danger);
+}
+
+@media (max-width: 640px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  h1 {
+    font-size: 1.4rem;
+  }
+
+  .slot {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

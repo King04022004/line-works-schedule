@@ -13,7 +13,7 @@ env_variables:
 
   LW_API_BASE_URL: "https://www.worksapis.com/v1.0"
   LW_AUTH_TOKEN_URL: "https://auth.worksmobile.com/oauth2/v2.0/token"
-  LW_OAUTH_REDIRECT_URI: "https://REPLACE_WITH_YOUR_HOST/api/v1/auth/callback"
+  LW_OAUTH_REDIRECT_URI: "https://line-works-schedule.an.r.appspot.com/api/v1/auth/callback"
   LW_OAUTH_SCOPES: "calendar calendar.read directory directory.read"
 
   LW_CALENDAR_BUSY_PATH_TEMPLATE: "/users/{userId}/calendar/events?fromDateTime={from}&untilDateTime={to}"

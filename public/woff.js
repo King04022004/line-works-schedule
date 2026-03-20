@@ -93,7 +93,9 @@ function renderSelectedMembers() {
     el.selectedMembers.innerHTML = "<span class=\"status\">2名以上選択してください。</span>";
     return;
   }
-  el.selectedMembers.innerHTML = selected.map((m) => `<span class=\"chip\">${m.name}</span>`).join("");
+  el.selectedMembers.innerHTML = selected
+    .map((m) => `<span class=\"chip\">${(m.name || m.id || "").trim()}</span>`)
+    .join("");
 }
 
 function toggleMember(id) {
@@ -109,7 +111,7 @@ function toggleMember(id) {
 function renderMemberOptions(keyword = "") {
   const q = keyword.toLowerCase();
   const filtered = allMembers.filter((m) => {
-    const t = `${m.name}`.toLowerCase();
+    const t = `${m.name || m.id || ""}`.toLowerCase();
     return !q || t.includes(q);
   });
 
@@ -126,7 +128,8 @@ function renderMemberOptions(keyword = "") {
     main.className = "member-main";
     const name = document.createElement("span");
     name.className = "member-name";
-    name.textContent = m.name;
+    const displayName = (m.name || "").trim() || (m.id || "").trim();
+    name.textContent = displayName;
     main.appendChild(name);
 
     const checkbox = document.createElement("input");

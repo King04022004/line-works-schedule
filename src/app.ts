@@ -13,7 +13,16 @@ export function createApp() {
   app.use(express.json());
   const here = path.dirname(fileURLToPath(import.meta.url));
   const publicDir = path.resolve(here, "..", "public");
-  app.use(express.static(publicDir));
+  app.use(
+    express.static(publicDir, {
+      etag: true,
+      lastModified: true,
+      setHeaders: (res) => {
+        // Avoid stale JS/CSS in LINE WORKS webview and mobile browsers.
+        res.setHeader("Cache-Control", "no-store, max-age=0");
+      }
+    })
+  );
 
   app.get("/", (_req, res) =>
     res.json({

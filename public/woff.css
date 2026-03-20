@@ -185,8 +185,13 @@ button:disabled {
 }
 
 .member-main {
-  min-width: 0;
-  text-align: left;
+  min-width: 0 !important;
+  max-width: none !important;
+  text-align: left !important;
+  overflow: visible !important;
+  white-space: normal !important;
+  writing-mode: horizontal-tb !important;
+  text-orientation: mixed !important;
 }
 
 .member-name {
@@ -197,7 +202,14 @@ button:disabled {
   white-space: normal !important;
   overflow: visible !important;
   text-overflow: clip !important;
-  word-break: keep-all;
+  word-break: keep-all !important;
+  overflow-wrap: anywhere !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  -webkit-line-clamp: unset !important;
+  line-clamp: unset !important;
+  opacity: 1 !important;
+  visibility: visible !important;
   writing-mode: horizontal-tb !important;
   text-orientation: mixed !important;
 }

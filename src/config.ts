@@ -20,6 +20,7 @@ export const config = {
       process.env.LW_CALENDAR_CREATE_PATH_TEMPLATE ??
       "/users/{calendarId}/calendar/events",
     oauthRedirectUri: process.env.LW_OAUTH_REDIRECT_URI ?? "http://localhost:3000/api/v1/auth/callback",
-    oauthScopes: process.env.LW_OAUTH_SCOPES ?? "calendar calendar.read directory directory.read"
+    oauthScopes: process.env.LW_OAUTH_SCOPES ?? "calendar calendar.read directory directory.read",
+    botFixedMenuPathTemplate: process.env.LW_BOT_FIXED_MENU_PATH_TEMPLATE ?? ""
   }
 };

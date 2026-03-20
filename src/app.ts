@@ -6,6 +6,7 @@ import { eventsRouter } from "./routes/events.js";
 import { directoryRouter } from "./routes/directory.js";
 import { config } from "./config.js";
 import { authRouter } from "./routes/auth.js";
+import { botAdminRouter } from "./routes/bot-admin.js";
 
 export function createApp() {
   const app = express();
@@ -29,6 +30,7 @@ export function createApp() {
         "/api/v1/auth/login",
         "/api/v1/auth/callback",
         "/api/v1/auth/status",
+        "/api/v1/bot/fixed-menu",
         "/woff"
       ]
     })
@@ -39,6 +41,7 @@ export function createApp() {
   app.get("/health", (_req, res) => res.json({ ok: true, mode: config.useMock ? "mock" : "live" }));
   app.use("/api/v1", directoryRouter);
   app.use("/api/v1/auth", authRouter);
+  app.use("/api/v1/bot", botAdminRouter);
   app.use("/api/v1/availability", availabilityRouter);
   app.use("/api/v1/events", eventsRouter);
 

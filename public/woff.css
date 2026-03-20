@@ -193,9 +193,15 @@ button:disabled {
 }
 
 .member-row > div > div {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+  word-break: break-word;
+}
+
+.member-row input[type="checkbox"] {
+  width: auto;
+  flex: 0 0 auto;
 }
 
 .chips {

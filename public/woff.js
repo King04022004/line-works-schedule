@@ -12,6 +12,7 @@ const el = {
   eventTitle: document.getElementById("eventTitle"),
   calendarId: document.getElementById("calendarId"),
   createBtn: document.getElementById("createBtn"),
+  loginBtn: document.getElementById("loginBtn"),
   authStatus: document.getElementById("authStatus"),
   log: document.getElementById("log")
 };
@@ -89,12 +90,20 @@ function renderCandidates(candidates) {
 async function refreshAuthStatus() {
   try {
     const s = await api("/api/v1/auth/status");
-    el.authStatus.textContent = s.loggedIn
-      ? "OAuthログイン済みです。予定登録できます。"
-      : "OAuth未ログインです。/api/v1/auth/login を先に開いてください。";
+    if (s.loggedIn) {
+      el.authStatus.textContent = "OAuthログイン済みです。予定登録できます。";
+      el.loginBtn.textContent = "再ログイン";
+    } else {
+      el.authStatus.textContent = "初回はLINE WORKSログインが必要です。";
+      el.loginBtn.textContent = "LINE WORKSでログイン";
+    }
   } catch {
     el.authStatus.textContent = "認証状態を取得できませんでした。";
   }
+}
+
+function loginUrl() {
+  return `/api/v1/auth/login?returnTo=${encodeURIComponent("/woff")}`;
 }
 
 el.searchBtn.addEventListener("click", async () => {
@@ -166,12 +175,24 @@ el.createBtn.addEventListener("click", async () => {
     el.searchSummary.textContent = "予定を登録しました。";
   } catch (e) {
     const m = e instanceof Error ? e.message : String(e);
+    if (m.includes("User OAuth login required")) {
+      el.searchSummary.textContent = "ログインが必要です。「LINE WORKSでログイン」を押してください。";
+    }
     writeLog(`予定登録失敗: ${m}`, true);
     el.searchSummary.textContent = `予定登録失敗: ${m}`;
   } finally {
     el.createBtn.disabled = false;
   }
 });
+
+el.loginBtn.addEventListener("click", () => {
+  window.location.href = loginUrl();
+});
+
+const params = new URLSearchParams(window.location.search);
+if (params.get("auth") === "ok") {
+  writeLog("OAuthログインが完了しました。");
+}
 
 defaultDateRange();
 refreshAuthStatus();

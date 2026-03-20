@@ -4,13 +4,14 @@ import { config } from "../config.js";
 import { asyncHandler } from "../lib/async-handler.js";
 import { clearUserToken, getUserToken, setUserToken } from "../auth/user-token-store.js";
 
-const stateMap = new Map<string, number>();
+type LoginState = { createdAt: number; returnTo: string };
+const stateMap = new Map<string, LoginState>();
 const STATE_TTL_MS = 10 * 60 * 1000;
 
 function cleanupState(): void {
   const now = Date.now();
-  for (const [k, createdAt] of stateMap) {
-    if (now - createdAt > STATE_TTL_MS) stateMap.delete(k);
+  for (const [k, v] of stateMap) {
+    if (now - v.createdAt > STATE_TTL_MS) stateMap.delete(k);
   }
 }
 
@@ -21,10 +22,12 @@ function required(v: string, name: string): string {
 
 export const authRouter = Router();
 
-authRouter.get("/login", (_req, res) => {
+authRouter.get("/login", (req, res) => {
   cleanupState();
+  const returnToRaw = String(req.query.returnTo ?? "/woff");
+  const returnTo = returnToRaw.startsWith("/") ? returnToRaw : "/woff";
   const state = randomUUID();
-  stateMap.set(state, Date.now());
+  stateMap.set(state, { createdAt: Date.now(), returnTo });
   const clientId = required(config.lineWorks.clientId, "LW_CLIENT_ID");
   const authUrl = new URL("https://auth.worksmobile.com/oauth2/v2.0/authorize");
   authUrl.searchParams.set("response_type", "code");
@@ -47,6 +50,7 @@ authRouter.get("/callback", asyncHandler(async (req, res) => {
   if (!state || !stateMap.has(state)) {
     return res.status(400).json({ error: { code: "AUTH_ERROR", message: "Invalid state", details: {} } });
   }
+  const loginState = stateMap.get(state)!;
   stateMap.delete(state);
   if (!code) {
     return res.status(400).json({ error: { code: "AUTH_ERROR", message: "Missing code", details: {} } });
@@ -85,7 +89,9 @@ authRouter.get("/callback", asyncHandler(async (req, res) => {
     expiresAtMs: json.expires_in ? Date.now() + json.expires_in * 1000 : undefined
   });
 
-  res.json({ ok: true, message: "LINE WORKS login completed. You can now call POST /api/v1/events." });
+  const redirect = new URL(loginState.returnTo, `${req.protocol}://${req.get("host")}`);
+  redirect.searchParams.set("auth", "ok");
+  res.redirect(redirect.toString());
 }));
 
 authRouter.get("/status", (_req, res) => {

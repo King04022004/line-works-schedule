@@ -172,7 +172,7 @@ button:disabled {
 .member-row {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   padding: 8px 10px;
   border-bottom: 1px solid #eef3fa;
   gap: 12px;
@@ -185,7 +185,9 @@ button:disabled {
 }
 
 .member-row > div {
+  flex: 1 1 auto;
   min-width: 0;
+  text-align: left;
   writing-mode: horizontal-tb;
   text-orientation: mixed;
 }

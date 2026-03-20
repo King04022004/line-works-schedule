@@ -116,6 +116,7 @@ button:disabled {
   gap: 12px;
   align-items: center;
   flex-wrap: wrap;
+  justify-content: center;
 }
 
 .status {
@@ -133,9 +134,11 @@ button:disabled {
   border-radius: 10px;
   padding: 10px;
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   gap: 10px;
+  flex-direction: column;
+  text-align: center;
 }
 
 .slot.selected {
@@ -179,16 +182,12 @@ button:disabled {
   border-bottom: none;
 }
 
-.member-meta {
-  font-size: 0.82rem;
-  color: var(--muted);
-}
-
 .chips {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
   margin: 8px 0 10px;
+  justify-content: center;
 }
 
 .chip {

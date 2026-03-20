@@ -17,7 +17,10 @@
   log: document.getElementById("log"),
   authModal: document.getElementById("authModal"),
   modalLoginBtn: document.getElementById("modalLoginBtn"),
-  modalCloseBtn: document.getElementById("modalCloseBtn")
+  modalCloseBtn: document.getElementById("modalCloseBtn"),
+  successModal: document.getElementById("successModal"),
+  successMessage: document.getElementById("successMessage"),
+  successCloseBtn: document.getElementById("successCloseBtn")
 };
 
 let selectedCandidate = null;
@@ -90,9 +93,7 @@ function renderSelectedMembers() {
     el.selectedMembers.innerHTML = "<span class=\"status\">2名以上選択してください。</span>";
     return;
   }
-  el.selectedMembers.innerHTML = selected
-    .map((m) => `<span class=\"chip\">${m.name} (${m.email || m.id})</span>`)
-    .join("");
+  el.selectedMembers.innerHTML = selected.map((m) => `<span class=\"chip\">${m.name}</span>`).join("");
 }
 
 function toggleMember(id) {
@@ -108,7 +109,7 @@ function toggleMember(id) {
 function renderMemberOptions(keyword = "") {
   const q = keyword.toLowerCase();
   const filtered = allMembers.filter((m) => {
-    const t = `${m.name} ${m.email || ""} ${m.id}`.toLowerCase();
+    const t = `${m.name}`.toLowerCase();
     return !q || t.includes(q);
   });
 
@@ -125,7 +126,6 @@ function renderMemberOptions(keyword = "") {
     row.innerHTML = `
       <div>
         <div>${m.name}</div>
-        <div class="member-meta">${m.email || m.id}</div>
       </div>
       <input type="checkbox" ${checked} />
     `;
@@ -185,7 +185,6 @@ function renderCandidates(candidates) {
     row.innerHTML = `
       <div>
         <div><strong>${formatSlotText(c.start, c.end)}</strong></div>
-        <div class="status">${c.participantUserIds.join(", ")}</div>
       </div>
       <button type="button">この日時を選択</button>
     `;
@@ -266,6 +265,10 @@ el.createBtn.addEventListener("click", async () => {
     });
     writeLog(`予定登録成功: ${event.eventId}`);
     el.searchSummary.textContent = "予定を登録しました。";
+    const when = formatSlotText(selectedCandidate.start, selectedCandidate.end);
+    const title = el.eventTitle.value.trim() || "打ち合わせ";
+    el.successMessage.textContent = `${when} の予定に「${title}」を登録しました。`;
+    el.successModal.classList.remove("hidden");
   } catch (e) {
     const m = e instanceof Error ? e.message : String(e);
     if (m.includes("User OAuth login required")) {
@@ -294,6 +297,10 @@ el.modalLoginBtn.addEventListener("click", () => {
 
 el.modalCloseBtn.addEventListener("click", () => {
   el.authModal.classList.add("hidden");
+});
+
+el.successCloseBtn.addEventListener("click", () => {
+  el.successModal.classList.add("hidden");
 });
 
 const params = new URLSearchParams(window.location.search);

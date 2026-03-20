@@ -17,6 +17,21 @@
         </div>
       </div>
     </div>
+    <div
+      id="successModal"
+      class="modal hidden"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="successModalTitle"
+    >
+      <div class="modal-card">
+        <h2 id="successModalTitle">予定登録が完了しました</h2>
+        <p id="successMessage"></p>
+        <div class="inline">
+          <button id="successCloseBtn" type="button">閉じる</button>
+        </div>
+      </div>
+    </div>
 
     <main class="app">
       <header class="hero">
@@ -46,7 +61,7 @@
 
         <label>
           参加メンバー（検索して追加）
-          <input id="memberSearch" type="text" placeholder="名前またはメールで検索" autocomplete="off" />
+          <input id="memberSearch" type="text" placeholder="名前で検索" autocomplete="off" />
         </label>
         <div id="memberOptions" class="member-options"></div>
         <div id="selectedMembers" class="chips"></div>

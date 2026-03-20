@@ -1,11 +1,18 @@
-import { Router } from "express";
+﻿import { Router } from "express";
 
 const users = [
-  { id: "u001", name: "鉢呂元輝", email: "hr.94319@hrdcorporation" },
-  { id: "u002", name: "丸林勇登", email: "hr.01106@hrdcorporation" },
-  { id: "u003", name: "宮部啓史", email: "hr.66275@hrdcorporation" },
-  { id: "u004", name: "山本裕也", email: "hr.34420@hrdcorporation" },
-  { id: "u005", name: "谷口強志郎", email: "taniguchi.kyoshiro@hrdcorporation" }
+  // NOTE:
+  // `id` is used as `/users/{userId}` in LINE WORKS API calls.
+  // Keep this as a real LINE WORKS user identifier (login ID / user ID).
+  { id: "hr.94319@hrdcorporation", name: "社員 94319", email: "hr.94319@hrdcorporation" },
+  { id: "hr.01106@hrdcorporation", name: "社員 01106", email: "hr.01106@hrdcorporation" },
+  { id: "hr.66275@hrdcorporation", name: "社員 66275", email: "hr.66275@hrdcorporation" },
+  { id: "hr.34420@hrdcorporation", name: "社員 34420", email: "hr.34420@hrdcorporation" },
+  {
+    id: "taniguchi.kyoshiro@hrdcorporation",
+    name: "谷口 京四郎",
+    email: "taniguchi.kyoshiro@hrdcorporation"
+  }
 ];
 
 const groups = [
@@ -14,8 +21,8 @@ const groups = [
 ];
 
 const groupMembers: Record<string, string[]> = {
-  g001: ["u001", "u002", "u003"],
-  g002: ["u002", "u004"]
+  g001: ["hr.94319@hrdcorporation", "hr.01106@hrdcorporation", "taniguchi.kyoshiro@hrdcorporation"],
+  g002: ["hr.66275@hrdcorporation", "hr.34420@hrdcorporation"]
 };
 
 export const directoryRouter = Router();
@@ -24,7 +31,13 @@ directoryRouter.get("/members", (req, res) => {
   const q = String(req.query.q ?? "").trim().toLowerCase();
   const limit = Math.min(Number(req.query.limit ?? 20), 100);
   const items = users
-    .filter((u) => !q || u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q))
+    .filter(
+      (u) =>
+        !q ||
+        u.name.toLowerCase().includes(q) ||
+        u.email.toLowerCase().includes(q) ||
+        u.id.toLowerCase().includes(q)
+    )
     .slice(0, limit);
   res.json({ items });
 });

@@ -4,13 +4,13 @@ const users = [
   // NOTE:
   // `id` is used as `/users/{userId}` in LINE WORKS API calls.
   // Keep this as a real LINE WORKS user identifier (login ID / user ID).
-  { id: "hr.94319@hrdcorporation", name: "社員 94319", email: "hr.94319@hrdcorporation" },
-  { id: "hr.01106@hrdcorporation", name: "社員 01106", email: "hr.01106@hrdcorporation" },
-  { id: "hr.66275@hrdcorporation", name: "社員 66275", email: "hr.66275@hrdcorporation" },
-  { id: "hr.34420@hrdcorporation", name: "社員 34420", email: "hr.34420@hrdcorporation" },
+  { id: "hr.94319@hrdcorporation", name: "鉢呂元輝", email: "hr.94319@hrdcorporation" },
+  { id: "hr.01106@hrdcorporation", name: "丸林勇登", email: "hr.01106@hrdcorporation" },
+  { id: "hr.66275@hrdcorporation", name: "宮部啓史", email: "hr.66275@hrdcorporation" },
+  { id: "hr.34420@hrdcorporation", name: "山本裕也", email: "hr.34420@hrdcorporation" },
   {
     id: "taniguchi.kyoshiro@hrdcorporation",
-    name: "谷口 京四郎",
+    name: "谷口強志郎",
     email: "taniguchi.kyoshiro@hrdcorporation"
   }
 ];

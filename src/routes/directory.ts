@@ -1,10 +1,11 @@
 import { Router } from "express";
 
 const users = [
-  { id: "u001", name: "山田 太郎", email: "taro@example.com" },
-  { id: "u002", name: "佐藤 花子", email: "hanako@example.com" },
-  { id: "u003", name: "鈴木 一郎", email: "ichiro@example.com" },
-  { id: "u004", name: "田中 次郎", email: "jiro@example.com" }
+  { id: "u001", name: "鉢呂元輝", email: "hr.94319@hrdcorporation" },
+  { id: "u002", name: "丸林勇登", email: "hr.01106@hrdcorporation" },
+  { id: "u003", name: "宮部啓史", email: "hr.66275@hrdcorporation" },
+  { id: "u004", name: "山本裕也", email: "hr.34420@hrdcorporation" },
+  { id: "u005", name: "谷口強志郎", email: "taniguchi.kyoshiro@hrdcorporation" }
 ];
 
 const groups = [

@@ -122,14 +122,21 @@ function renderMemberOptions(keyword = "") {
   for (const m of filtered) {
     const row = document.createElement("div");
     row.className = "member-row";
-    const checked = selectedMemberIds.includes(m.id) ? "checked" : "";
-    row.innerHTML = `
-      <div>
-        <div>${m.name}</div>
-      </div>
-      <input type="checkbox" ${checked} />
-    `;
-    row.querySelector("input").addEventListener("change", () => toggleMember(m.id));
+    const main = document.createElement("div");
+    main.className = "member-main";
+    const name = document.createElement("span");
+    name.className = "member-name";
+    name.textContent = m.name;
+    main.appendChild(name);
+
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.checked = selectedMemberIds.includes(m.id);
+
+    row.appendChild(main);
+    row.appendChild(checkbox);
+
+    checkbox.addEventListener("change", () => toggleMember(m.id));
     row.addEventListener("click", (e) => {
       if (e.target?.tagName !== "INPUT") toggleMember(m.id);
     });

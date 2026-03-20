@@ -1,4 +1,4 @@
-:root {
+﻿:root {
   --bg: #f5f8ff;
   --paper: #ffffff;
   --ink: #182533;
@@ -240,3 +240,4 @@ button:disabled {
     align-items: flex-start;
   }
 }
+

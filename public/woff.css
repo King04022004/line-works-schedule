@@ -23,7 +23,7 @@ body {
 }
 
 .app {
-  max-width: 860px;
+  max-width: 900px;
   margin: 0 auto;
   padding: 20px 14px 80px;
 }
@@ -96,6 +96,10 @@ button {
   cursor: pointer;
 }
 
+button.secondary {
+  background: #70859f;
+}
+
 button:disabled {
   opacity: 0.4;
   cursor: not-allowed;
@@ -152,6 +156,74 @@ button:disabled {
 
 .danger {
   color: var(--danger);
+}
+
+.member-options {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  max-height: 220px;
+  overflow: auto;
+  background: #fff;
+}
+
+.member-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  border-bottom: 1px solid #eef3fa;
+  gap: 8px;
+}
+
+.member-row:last-child {
+  border-bottom: none;
+}
+
+.member-meta {
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 8px 0 10px;
+}
+
+.chip {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 5px 10px;
+  background: #f9fbff;
+  font-size: 0.86rem;
+}
+
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 26, 42, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  z-index: 999;
+}
+
+.modal.hidden {
+  display: none;
+}
+
+.modal-card {
+  width: min(520px, 100%);
+  background: #fff;
+  border-radius: 14px;
+  padding: 16px;
+  border: 1px solid var(--line);
+}
+
+.modal-card h2 {
+  margin-top: 0;
 }
 
 @media (max-width: 640px) {

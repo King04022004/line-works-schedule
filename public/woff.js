@@ -1,24 +1,29 @@
 const el = {
-  actorUserId: document.getElementById("actorUserId"),
   durationMinutes: document.getElementById("durationMinutes"),
-  participants: document.getElementById("participants"),
+  excludeWeekends: document.getElementById("excludeWeekends"),
+  memberSearch: document.getElementById("memberSearch"),
+  memberOptions: document.getElementById("memberOptions"),
+  selectedMembers: document.getElementById("selectedMembers"),
   rangeFrom: document.getElementById("rangeFrom"),
   rangeTo: document.getElementById("rangeTo"),
-  excludeWeekends: document.getElementById("excludeWeekends"),
   searchBtn: document.getElementById("searchBtn"),
   searchSummary: document.getElementById("searchSummary"),
   candidates: document.getElementById("candidates"),
   confirmSlot: document.getElementById("confirmSlot"),
   eventTitle: document.getElementById("eventTitle"),
-  calendarId: document.getElementById("calendarId"),
   createBtn: document.getElementById("createBtn"),
   loginBtn: document.getElementById("loginBtn"),
   authStatus: document.getElementById("authStatus"),
-  log: document.getElementById("log")
+  log: document.getElementById("log"),
+  authModal: document.getElementById("authModal"),
+  modalLoginBtn: document.getElementById("modalLoginBtn"),
+  modalCloseBtn: document.getElementById("modalCloseBtn")
 };
 
 let selectedCandidate = null;
-let lastParticipants = [];
+let selectedMemberIds = [];
+let allMembers = [];
+let loggedIn = false;
 
 function fmtISOFromLocal(localText) {
   if (!localText) return null;
@@ -39,11 +44,31 @@ function defaultDateRange() {
 function writeLog(message, isError = false) {
   const line = `[${new Date().toLocaleTimeString()}] ${message}`;
   el.log.textContent = `${line}\n${el.log.textContent}`;
-  if (isError) {
-    el.searchSummary.classList.add("danger");
-  } else {
-    el.searchSummary.classList.remove("danger");
-  }
+  if (isError) el.searchSummary.classList.add("danger");
+  else el.searchSummary.classList.remove("danger");
+}
+
+function loginUrl() {
+  return `/api/v1/auth/login?returnTo=${encodeURIComponent("/woff")}`;
+}
+
+function formatSlotText(startIso, endIso) {
+  const start = new Date(startIso);
+  const end = new Date(endIso);
+  const dateFmt = new Intl.DateTimeFormat("ja-JP", {
+    timeZone: "Asia/Tokyo",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    weekday: "short"
+  });
+  const timeFmt = new Intl.DateTimeFormat("ja-JP", {
+    timeZone: "Asia/Tokyo",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false
+  });
+  return `${dateFmt.format(start)} ${timeFmt.format(start)} - ${timeFmt.format(end)}`;
 }
 
 async function api(path, options = {}) {
@@ -59,10 +84,98 @@ async function api(path, options = {}) {
   return data;
 }
 
+function renderSelectedMembers() {
+  const selected = allMembers.filter((m) => selectedMemberIds.includes(m.id));
+  if (!selected.length) {
+    el.selectedMembers.innerHTML = "<span class=\"status\">2–¼ˆÈã‘I‘ğ‚µ‚Ä‚­‚¾‚³‚¢B</span>";
+    return;
+  }
+  el.selectedMembers.innerHTML = selected
+    .map((m) => `<span class=\"chip\">${m.name} (${m.email || m.id})</span>`)
+    .join("");
+}
+
+function toggleMember(id) {
+  if (selectedMemberIds.includes(id)) {
+    selectedMemberIds = selectedMemberIds.filter((x) => x !== id);
+  } else {
+    selectedMemberIds.push(id);
+  }
+  renderMemberOptions(el.memberSearch.value.trim());
+  renderSelectedMembers();
+}
+
+function renderMemberOptions(keyword = "") {
+  const q = keyword.toLowerCase();
+  const filtered = allMembers.filter((m) => {
+    const t = `${m.name} ${m.email || ""} ${m.id}`.toLowerCase();
+    return !q || t.includes(q);
+  });
+
+  if (!filtered.length) {
+    el.memberOptions.innerHTML = "<div class=\"member-row\">Œó•â‚ª‚ ‚è‚Ü‚¹‚ñ</div>";
+    return;
+  }
+
+  el.memberOptions.innerHTML = "";
+  for (const m of filtered) {
+    const row = document.createElement("div");
+    row.className = "member-row";
+    const checked = selectedMemberIds.includes(m.id) ? "checked" : "";
+    row.innerHTML = `
+      <div>
+        <div>${m.name}</div>
+        <div class="member-meta">${m.email || m.id}</div>
+      </div>
+      <input type="checkbox" ${checked} />
+    `;
+    row.querySelector("input").addEventListener("change", () => toggleMember(m.id));
+    row.addEventListener("click", (e) => {
+      if (e.target?.tagName !== "INPUT") toggleMember(m.id);
+    });
+    el.memberOptions.appendChild(row);
+  }
+}
+
+function setAuthUi(isLoggedIn) {
+  loggedIn = isLoggedIn;
+  if (isLoggedIn) {
+    el.authStatus.textContent = "OAuthƒƒOƒCƒ“Ï‚İ‚Å‚·B—\’è“o˜^‚Å‚«‚Ü‚·B";
+    el.loginBtn.textContent = "ÄƒƒOƒCƒ“";
+    el.authModal.classList.add("hidden");
+  } else {
+    el.authStatus.textContent = "‰‰ñ‚ÍLINE WORKSƒƒOƒCƒ“‚ª•K—v‚Å‚·B";
+    el.loginBtn.textContent = "LINE WORKS‚ÅƒƒOƒCƒ“";
+    el.authModal.classList.remove("hidden");
+  }
+}
+
+async function refreshAuthStatus() {
+  try {
+    const s = await api("/api/v1/auth/status");
+    setAuthUi(!!s.loggedIn);
+  } catch {
+    el.authStatus.textContent = "”FØó‘Ô‚ğæ“¾‚Å‚«‚Ü‚¹‚ñ‚Å‚µ‚½B";
+    setAuthUi(false);
+  }
+}
+
+async function loadMembers() {
+  try {
+    const data = await api("/api/v1/members?limit=100");
+    allMembers = data.items || [];
+    selectedMemberIds = allMembers.slice(0, 2).map((x) => x.id);
+    renderMemberOptions("");
+    renderSelectedMembers();
+  } catch (e) {
+    writeLog(`ƒƒ“ƒo[ˆê——æ“¾¸”s: ${e instanceof Error ? e.message : String(e)}`, true);
+  }
+}
+
 function renderCandidates(candidates) {
   el.candidates.innerHTML = "";
   if (!candidates.length) {
-    el.candidates.innerHTML = `<p class="status">å€™è£œãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“ã§ã—ãŸã€‚</p>`;
+    el.candidates.innerHTML = `<p class="status">Œó•â‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñ‚Å‚µ‚½B</p>`;
     return;
   }
 
@@ -71,51 +184,31 @@ function renderCandidates(candidates) {
     row.className = "slot";
     row.innerHTML = `
       <div>
-        <div><strong>${c.start}</strong> - <strong>${c.end}</strong></div>
+        <div><strong>${formatSlotText(c.start, c.end)}</strong></div>
         <div class="status">${c.participantUserIds.join(", ")}</div>
       </div>
-      <button type="button">ã“ã®æ—¥æ™‚ã‚’é¸æŠ</button>
+      <button type="button">‚±‚Ì“ú‚ğ‘I‘ğ</button>
     `;
     row.querySelector("button").addEventListener("click", () => {
       selectedCandidate = c;
       document.querySelectorAll(".slot").forEach((x) => x.classList.remove("selected"));
       row.classList.add("selected");
-      el.confirmSlot.textContent = `${c.start} - ${c.end}`;
+      el.confirmSlot.textContent = formatSlotText(c.start, c.end);
       el.createBtn.disabled = false;
     });
     el.candidates.appendChild(row);
   }
 }
 
-async function refreshAuthStatus() {
-  try {
-    const s = await api("/api/v1/auth/status");
-    if (s.loggedIn) {
-      el.authStatus.textContent = "OAuthãƒ­ã‚°ã‚¤ãƒ³æ¸ˆã¿ã§ã™ã€‚äºˆå®šç™»éŒ²ã§ãã¾ã™ã€‚";
-      el.loginBtn.textContent = "å†ãƒ­ã‚°ã‚¤ãƒ³";
-    } else {
-      el.authStatus.textContent = "åˆå›ã¯LINE WORKSãƒ­ã‚°ã‚¤ãƒ³ãŒå¿…è¦ã§ã™ã€‚";
-      el.loginBtn.textContent = "LINE WORKSã§ãƒ­ã‚°ã‚¤ãƒ³";
-    }
-  } catch {
-    el.authStatus.textContent = "èªè¨¼çŠ¶æ…‹ã‚’å–å¾—ã§ãã¾ã›ã‚“ã§ã—ãŸã€‚";
-  }
-}
-
-function loginUrl() {
-  return `/api/v1/auth/login?returnTo=${encodeURIComponent("/woff")}`;
-}
-
 el.searchBtn.addEventListener("click", async () => {
   try {
-    const participants = el.participants.value
-      .split(/\r?\n/)
-      .map((v) => v.trim())
-      .filter(Boolean);
-    lastParticipants = participants;
+    if (selectedMemberIds.length < 2) {
+      throw new Error("Q‰Áƒƒ“ƒo[‚ğ2–¼ˆÈã‘I‘ğ‚µ‚Ä‚­‚¾‚³‚¢B");
+    }
+
     const body = {
-      actorUserId: el.actorUserId.value.trim() || "me",
-      participantUserIds: participants,
+      actorUserId: "me",
+      participantUserIds: selectedMemberIds,
       durationMinutes: Number(el.durationMinutes.value),
       range: {
         from: fmtISOFromLocal(el.rangeFrom.value),
@@ -123,7 +216,7 @@ el.searchBtn.addEventListener("click", async () => {
       },
       options: {
         businessHours: { start: "09:00", end: "18:00" },
-        excludeWeekends: el.excludeWeekends.checked,
+        excludeWeekends: el.excludeWeekends.value === "true",
         resultLimit: 5
       }
     };
@@ -133,12 +226,12 @@ el.searchBtn.addEventListener("click", async () => {
       body: JSON.stringify(body)
     });
     renderCandidates(result.candidates || []);
-    el.searchSummary.textContent = `å€™è£œ ${result.total} ä»¶`;
-    writeLog(`å€™è£œæ¤œç´¢æˆåŠŸ: ${result.total}ä»¶`);
+    el.searchSummary.textContent = `Œó•â ${result.total} Œ`;
+    writeLog(`Œó•âŒŸõ¬Œ÷: ${result.total}Œ`);
   } catch (e) {
     const m = e instanceof Error ? e.message : String(e);
-    el.searchSummary.textContent = `å€™è£œæ¤œç´¢å¤±æ•—: ${m}`;
-    writeLog(`å€™è£œæ¤œç´¢å¤±æ•—: ${m}`, true);
+    el.searchSummary.textContent = `Œó•âŒŸõ¸”s: ${m}`;
+    writeLog(`Œó•âŒŸõ¸”s: ${m}`, true);
   }
 });
 
@@ -149,50 +242,65 @@ el.createBtn.addEventListener("click", async () => {
     const recheck = await api("/api/v1/availability/recheck", {
       method: "POST",
       body: JSON.stringify({
-        participantUserIds: lastParticipants,
+        participantUserIds: selectedMemberIds,
         start: selectedCandidate.start,
         end: selectedCandidate.end
       })
     });
     if (!recheck.available) {
-      throw new Error(`å†åˆ¤å®šNG: ${recheck.conflicts?.join(", ") || "conflict"}`);
+      throw new Error(`Ä”»’èNG: ${recheck.conflicts?.join(", ") || "conflict"}`);
     }
 
-    const idempotencyKey = `${selectedCandidate.candidateId}_${el.actorUserId.value || "me"}`;
+    const idempotencyKey = `${selectedCandidate.candidateId}_me`;
     const event = await api("/api/v1/events", {
       method: "POST",
       body: JSON.stringify({
-        actorUserId: el.actorUserId.value.trim() || "me",
-        calendarId: el.calendarId.value.trim() || "me",
-        title: el.eventTitle.value.trim() || "æ‰“ã¡åˆã‚ã›",
+        actorUserId: "me",
+        calendarId: "me",
+        title: el.eventTitle.value.trim() || "‘Å‚¿‡‚í‚¹",
         start: selectedCandidate.start,
         end: selectedCandidate.end,
-        participantUserIds: lastParticipants,
+        participantUserIds: selectedMemberIds,
         idempotencyKey
       })
     });
-    writeLog(`äºˆå®šç™»éŒ²æˆåŠŸ: ${event.eventId}`);
-    el.searchSummary.textContent = "äºˆå®šã‚’ç™»éŒ²ã—ã¾ã—ãŸã€‚";
+    writeLog(`—\’è“o˜^¬Œ÷: ${event.eventId}`);
+    el.searchSummary.textContent = "—\’è‚ğ“o˜^‚µ‚Ü‚µ‚½B";
   } catch (e) {
     const m = e instanceof Error ? e.message : String(e);
     if (m.includes("User OAuth login required")) {
-      el.searchSummary.textContent = "ãƒ­ã‚°ã‚¤ãƒ³ãŒå¿…è¦ã§ã™ã€‚ã€ŒLINE WORKSã§ãƒ­ã‚°ã‚¤ãƒ³ã€ã‚’æŠ¼ã—ã¦ãã ã•ã„ã€‚";
+      setAuthUi(false);
+      el.searchSummary.textContent = "ƒƒOƒCƒ“‚ª•K—v‚Å‚·BuLINE WORKS‚ÅƒƒOƒCƒ“v‚ğ‰Ÿ‚µ‚Ä‚­‚¾‚³‚¢B";
+    } else {
+      el.searchSummary.textContent = `—\’è“o˜^¸”s: ${m}`;
     }
-    writeLog(`äºˆå®šç™»éŒ²å¤±æ•—: ${m}`, true);
-    el.searchSummary.textContent = `äºˆå®šç™»éŒ²å¤±æ•—: ${m}`;
+    writeLog(`—\’è“o˜^¸”s: ${m}`, true);
   } finally {
     el.createBtn.disabled = false;
   }
+});
+
+el.memberSearch.addEventListener("input", () => {
+  renderMemberOptions(el.memberSearch.value.trim());
 });
 
 el.loginBtn.addEventListener("click", () => {
   window.location.href = loginUrl();
 });
 
+el.modalLoginBtn.addEventListener("click", () => {
+  window.location.href = loginUrl();
+});
+
+el.modalCloseBtn.addEventListener("click", () => {
+  el.authModal.classList.add("hidden");
+});
+
 const params = new URLSearchParams(window.location.search);
 if (params.get("auth") === "ok") {
-  writeLog("OAuthãƒ­ã‚°ã‚¤ãƒ³ãŒå®Œäº†ã—ã¾ã—ãŸã€‚");
+  writeLog("OAuthƒƒOƒCƒ“‚ªŠ®—¹‚µ‚Ü‚µ‚½B");
 }
 
 defaultDateRange();
+loadMembers();
 refreshAuthStatus();
